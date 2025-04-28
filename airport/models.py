@@ -24,3 +24,16 @@ class Cargo(models.Model):
         choices=ConditionChoices,
         default=ConditionChoices.GOOD,
     )
+
+
+class CargoAirplane(models.Model):
+    model = models.CharField(max_length=100)
+    registration_number = models.CharField(max_length=20, unique=True)
+    country_of_origin = models.CharField(max_length=50)
+    fuel_type = models.CharField(max_length=20)
+    max_cargo_capacity = models.DecimalField(max_digits=5, decimal_places=2)
+    cargo_hold_volume = models.DecimalField(max_digits=6, decimal_places=2)
+    max_range_km = models.PositiveIntegerField(
+        validators=[MinValueValidator(50)]
+    )
+    cargos = models.ManyToManyField(Cargo, related_name="cargo_airplanes")
