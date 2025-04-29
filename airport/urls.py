@@ -1,13 +1,16 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from airport.views import AirportViewSet, CargoViewSet, CargoAirplaneViewSet, PilotCreateView
+from airport.views import AirportViewSet, CargoViewSet, CargoAirplaneViewSet, PilotViewSet, FlightViewSet, \
+    RouteViewSet
 
 router = DefaultRouter()
 router.register("airports", AirportViewSet)
 router.register("cargos", CargoViewSet)
 router.register("cargo_airplanes", CargoAirplaneViewSet)
-router.register("pilots", PilotCreateView)
+router.register("pilots", PilotViewSet)
+router.register("flights", FlightViewSet)
+router.register("routers", RouteViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

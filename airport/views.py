@@ -1,13 +1,14 @@
 from rest_framework import viewsets
 
-from airport.models import Airport, Cargo, CargoAirplane, Pilot
+from airport.models import Airport, Cargo, CargoAirplane, Pilot, Flight, Route
 from airport.serializers import (
     AirportSerializer,
     CargoSerializer,
     CargoListSerializer,
     CargoDetailSerializer,
     CargoAirplaneSerializer,
-    CargoAirplaneDetailSerializer, PilotSerializer, CargoAirplaneCreateSerializer, CargoAirplaneUpdateSerializer
+    CargoAirplaneDetailSerializer, PilotSerializer, CargoAirplaneCreateSerializer, CargoAirplaneUpdateSerializer,
+    FlightSerializer, FlightListSerializer, RouteSerializer
 )
 
 
@@ -41,6 +42,20 @@ class CargoAirplaneViewSet(viewsets.ModelViewSet):
         return CargoAirplaneSerializer
 
 
-class PilotCreateView(viewsets.ModelViewSet):
+class PilotViewSet(viewsets.ModelViewSet):
     queryset = Pilot.objects.all()
     serializer_class = PilotSerializer
+
+
+class RouteViewSet(viewsets.ModelViewSet):
+    queryset = Route.objects.all()
+    serializer_class = RouteSerializer
+
+
+class FlightViewSet(viewsets.ModelViewSet):
+    queryset = Flight.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return FlightListSerializer
+        return FlightSerializer
