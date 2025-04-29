@@ -10,6 +10,12 @@ class Airport(models.Model):
         unique_together = ("name", "closest_big_city")
 
 
+class Route(models.Model):
+    source = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="routes_from")
+    destination = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="route_to")
+    distance = models.IntegerField()
+
+
 class Pilot(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
