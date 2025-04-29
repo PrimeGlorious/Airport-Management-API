@@ -68,9 +68,3 @@ class CargoAirplane(models.Model):
         related_name="cargo_airplanes",
         blank=True,
     )
-    pilots = models.ManyToManyField(
-        to=Pilot,
-        related_name="cargo_airplanes",
-        blank=True,
-    )
-    is_active = models.BooleanField(default=False)

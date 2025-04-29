@@ -80,7 +80,6 @@ class CargoShortSerializer(serializers.ModelSerializer):
 
 class CargoAirplaneSerializer(serializers.ModelSerializer):
     cargos_count = serializers.SerializerMethodField()
-    pilots_count = serializers.SerializerMethodField()
 
     class Meta:
         model = CargoAirplane
@@ -94,15 +93,10 @@ class CargoAirplaneSerializer(serializers.ModelSerializer):
             "cargo_hold_volume",
             "max_range_km",
             "cargos_count",
-            "pilots_count",
-            "is_active",
         )
 
     def get_cargos_count(self, obj):
         return obj.cargos.count()
-
-    def get_pilots_count(self, obj):
-        return obj.pilots.count()
 
 
 class CargoAirplaneCreateSerializer(serializers.ModelSerializer):
@@ -124,8 +118,6 @@ class CargoAirplaneUpdateSerializer(CargoAirplaneCreateSerializer):
     class Meta(CargoAirplaneCreateSerializer.Meta):
         fields = CargoAirplaneCreateSerializer.Meta.fields + (
             "cargos",
-            "pilots",
-            "is_active",
         )
 
 
@@ -134,4 +126,4 @@ class CargoAirplaneDetailSerializer(CargoAirplaneCreateSerializer):
     pilots = PilotSerializer(many=True, read_only=True)
 
     class Meta(CargoAirplaneCreateSerializer.Meta):
-        fields = CargoAirplaneCreateSerializer.Meta.fields + ("cargos", "pilots", "is_active",)
+        fields = CargoAirplaneCreateSerializer.Meta.fields + ("cargos",)
