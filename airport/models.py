@@ -1,6 +1,5 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import CASCADE
 
 
 class Airport(models.Model):
@@ -9,6 +8,17 @@ class Airport(models.Model):
 
     class Meta:
         unique_together = ("name", "closest_big_city")
+
+
+class Pilot(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    badge_number = models.PositiveIntegerField(unique=True)
+    experience = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(1),
+        ]
+    )
 
 
 class Cargo(models.Model):
@@ -43,10 +53,18 @@ class CargoAirplane(models.Model):
     max_cargo_capacity = models.DecimalField(max_digits=5, decimal_places=2)
     cargo_hold_volume = models.DecimalField(max_digits=6, decimal_places=2)
     max_range_km = models.PositiveIntegerField(
-        validators=[MinValueValidator(50)]
+        validators=[
+            MinValueValidator(50)
+        ]
     )
     cargos = models.ManyToManyField(
         Cargo,
         related_name="cargo_airplanes",
         blank=True,
     )
+    pilots = models.ManyToManyField(
+        to=Pilot,
+        related_name="cargo_airplanes",
+        blank=True,
+    )
+    is_active = models.BooleanField(default=False)
