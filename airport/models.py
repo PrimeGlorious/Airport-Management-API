@@ -9,11 +9,17 @@ class Airport(models.Model):
     class Meta:
         unique_together = ("name", "closest_big_city")
 
+    def __str__(self):
+        return f"{self.name} | {self.closest_big_city}"
+
 
 class Route(models.Model):
     source = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="routes_from")
     destination = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="route_to")
     distance = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.source.name} -> {self.destination.name}"
 
 
 class Pilot(models.Model):
@@ -25,6 +31,9 @@ class Pilot(models.Model):
             MinValueValidator(1),
         ]
     )
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 class Cargo(models.Model):
@@ -68,3 +77,24 @@ class CargoAirplane(models.Model):
         related_name="cargo_airplanes",
         blank=True,
     )
+
+    def __str__(self):
+        return f"{self.model} | {self.registration_number}"
+
+
+class Flight(models.Model):
+    route = models.ForeignKey(
+        Route,
+        on_delete=models.CASCADE,
+        related_name="flights"
+    )
+    airplane = models.ForeignKey(
+        to=CargoAirplane,
+        on_delete=models.CASCADE,
+        related_name="flights",
+    )
+    departure_time = models.DateTimeField()
+    arrival_time = models.DateTimeField()
+
+    def __str__(self):
+        return f"Flight {self.airplane.name} -> {self.departure_time}"
