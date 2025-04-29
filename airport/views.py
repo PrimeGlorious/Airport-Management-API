@@ -7,7 +7,7 @@ from airport.serializers import (
     CargoListSerializer,
     CargoDetailSerializer,
     CargoAirplaneSerializer,
-    CargoAirplaneDetailSerializer, PilotSerializer
+    CargoAirplaneDetailSerializer, PilotSerializer, CargoAirplaneCreateSerializer, CargoAirplaneUpdateSerializer
 )
 
 
@@ -34,6 +34,10 @@ class CargoAirplaneViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "retrieve":
             return CargoAirplaneDetailSerializer
+        elif self.action == "create":
+            return CargoAirplaneCreateSerializer
+        elif self.action == "update":
+            return CargoAirplaneUpdateSerializer
         return CargoAirplaneSerializer
 
 

@@ -13,6 +13,18 @@ class AirportSerializer(serializers.ModelSerializer):
         )
 
 
+class PilotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pilot
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "badge_number",
+            "experience"
+        )
+
+
 class CargoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cargo
@@ -67,6 +79,9 @@ class CargoShortSerializer(serializers.ModelSerializer):
 
 
 class CargoAirplaneSerializer(serializers.ModelSerializer):
+    cargos_count = serializers.SerializerMethodField()
+    pilots_count = serializers.SerializerMethodField()
+
     class Meta:
         model = CargoAirplane
         fields = (
@@ -78,21 +93,45 @@ class CargoAirplaneSerializer(serializers.ModelSerializer):
             "max_cargo_capacity",
             "cargo_hold_volume",
             "max_range_km",
-            "cargos"
+            "cargos_count",
+            "pilots_count",
+            "is_active",
         )
 
+    def get_cargos_count(self, obj):
+        return obj.cargos.count()
 
-class CargoAirplaneDetailSerializer(CargoAirplaneSerializer):
-    cargos = CargoShortSerializer(many=True, read_only=True)
+    def get_pilots_count(self, obj):
+        return obj.pilots.count()
 
 
-class PilotSerializer(serializers.ModelSerializer):
+class CargoAirplaneCreateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Pilot
+        model = CargoAirplane
         fields = (
             "id",
-            "first_name",
-            "last_name",
-            "badge_number",
-            "experience"
+            "model",
+            "registration_number",
+            "country_of_origin",
+            "fuel_type",
+            "max_cargo_capacity",
+            "cargo_hold_volume",
+            "max_range_km",
         )
+
+
+class CargoAirplaneUpdateSerializer(CargoAirplaneCreateSerializer):
+    class Meta(CargoAirplaneCreateSerializer.Meta):
+        fields = CargoAirplaneCreateSerializer.Meta.fields + (
+            "cargos",
+            "pilots",
+            "is_active",
+        )
+
+
+class CargoAirplaneDetailSerializer(CargoAirplaneCreateSerializer):
+    cargos = CargoShortSerializer(many=True, read_only=True)
+    pilots = PilotSerializer(many=True, read_only=True)
+
+    class Meta(CargoAirplaneCreateSerializer.Meta):
+        fields = CargoAirplaneCreateSerializer.Meta.fields + ("cargos", "pilots", "is_active",)
