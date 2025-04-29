@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from airport.models import Airport, Cargo, CargoAirplane, Pilot
+from airport.models import Airport, Cargo, CargoAirplane, Pilot, Flight, Route
 
 
 class AirportSerializer(serializers.ModelSerializer):
@@ -78,6 +78,15 @@ class CargoShortSerializer(serializers.ModelSerializer):
         )
 
 
+class CargoAirplaneShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CargoAirplane
+        fields = (
+            "model",
+            "registration_number",
+        )
+
+
 class CargoAirplaneSerializer(serializers.ModelSerializer):
     cargos_count = serializers.SerializerMethodField()
 
@@ -123,7 +132,56 @@ class CargoAirplaneUpdateSerializer(CargoAirplaneCreateSerializer):
 
 class CargoAirplaneDetailSerializer(CargoAirplaneCreateSerializer):
     cargos = CargoShortSerializer(many=True, read_only=True)
-    pilots = PilotSerializer(many=True, read_only=True)
 
     class Meta(CargoAirplaneCreateSerializer.Meta):
         fields = CargoAirplaneCreateSerializer.Meta.fields + ("cargos",)
+
+
+class RouteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Route
+        fields = (
+            "source",
+            "destination",
+            "distance",
+        )
+
+
+class RouteShortSerializer(serializers.ModelSerializer):
+    travel = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Route
+        fields = (
+            "travel",
+            "distance",
+        )
+
+    @staticmethod
+    def get_travel(obj):
+        return str(obj)
+
+
+class FlightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flight
+        fields = (
+            "route",
+            "airplane",
+            "departure_time",
+            "arrival_time",
+        )
+
+
+class FlightListSerializer(serializers.ModelSerializer):
+    route = RouteShortSerializer()
+    airplane = CargoAirplaneShortSerializer()
+
+    class Meta:
+        model = Flight
+        fields = (
+            "route",
+            "airplane",
+            "departure_time",
+            "arrival_time",
+        )
