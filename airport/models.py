@@ -3,18 +3,15 @@ from django.db import models
 
 
 class Airport(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     closest_big_city = models.CharField(max_length=100)
-
-    class Meta:
-        unique_together = ("name", "closest_big_city")
 
     def __str__(self):
         return f"{self.name} | {self.closest_big_city}"
 
 
 class Route(models.Model):
-    source = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="routes_from")
+    source = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="route_from")
     destination = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="route_to")
     distance = models.IntegerField()
 
