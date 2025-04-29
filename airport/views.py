@@ -1,8 +1,14 @@
 from rest_framework import viewsets
 
-from airport.models import Airport, Cargo, CargoAirplane
-from airport.serializers import AirportSerializer, CargoSerializer, CargoListSerializer, CargoDetailSerializer, \
-    CargoAirplaneSerializer, CargoAirplaneDetailSerializer
+from airport.models import Airport, Cargo, CargoAirplane, Pilot
+from airport.serializers import (
+    AirportSerializer,
+    CargoSerializer,
+    CargoListSerializer,
+    CargoDetailSerializer,
+    CargoAirplaneSerializer,
+    CargoAirplaneDetailSerializer, PilotSerializer
+)
 
 
 class AirportViewSet(viewsets.ModelViewSet):
@@ -29,3 +35,8 @@ class CargoAirplaneViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return CargoAirplaneDetailSerializer
         return CargoAirplaneSerializer
+
+
+class PilotCreateView(viewsets.ModelViewSet):
+    queryset = Pilot.objects.all()
+    serializer_class = PilotSerializer
