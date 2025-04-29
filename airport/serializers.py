@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from airport.models import Airport, Cargo
+from airport.models import Airport, Cargo, CargoAirplane
 
 
 class AirportSerializer(serializers.ModelSerializer):
@@ -54,3 +54,33 @@ class CargoDetailSerializer(serializers.ModelSerializer):
             "is_delivered",
             "condition"
         )
+
+
+class CargoShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cargo
+        fields = (
+            "id",
+            "weight",
+            "volume",
+        )
+
+
+class CargoAirplaneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CargoAirplane
+        fields = (
+            "id",
+            "model",
+            "registration_number",
+            "country_of_origin",
+            "fuel_type",
+            "max_cargo_capacity",
+            "cargo_hold_volume",
+            "max_range_km",
+            "cargos"
+        )
+
+
+class CargoAirplaneDetailSerializer(CargoAirplaneSerializer):
+    cargos = CargoShortSerializer(many=True, read_only=True)

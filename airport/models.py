@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import CASCADE
 
 
 class Airport(models.Model):
@@ -25,6 +26,14 @@ class Cargo(models.Model):
         default=ConditionChoices.GOOD,
     )
 
+    def __str__(self):
+        return (f"Weight {self.weight} Volume {self.volume} "
+                f"| is delivered = {self.is_delivered}")
+
+    @property
+    def shorted_description(self):
+        return self.description[:40]
+
 
 class CargoAirplane(models.Model):
     model = models.CharField(max_length=100)
@@ -36,4 +45,8 @@ class CargoAirplane(models.Model):
     max_range_km = models.PositiveIntegerField(
         validators=[MinValueValidator(50)]
     )
-    cargos = models.ManyToManyField(Cargo, related_name="cargo_airplanes")
+    cargos = models.ManyToManyField(
+        Cargo,
+        related_name="cargo_airplanes",
+        blank=True,
+    )
