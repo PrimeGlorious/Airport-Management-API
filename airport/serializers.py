@@ -97,6 +97,11 @@ class RouteSerializer(serializers.ModelSerializer):
         )
 
 
+class RouteListSerializer(RouteSerializer):
+    source = AirportSerializer(read_only=True)
+    destination = AirportSerializer(read_only=True)
+
+
 class RouteShortSerializer(serializers.ModelSerializer):
     travel = serializers.SerializerMethodField()
 
