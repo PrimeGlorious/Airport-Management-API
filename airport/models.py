@@ -4,6 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
+from rest_framework.exceptions import ValidationError
 
 
 class Airport(models.Model):
@@ -17,7 +18,20 @@ class Airport(models.Model):
 class Route(models.Model):
     source = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="route_from")
     destination = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="route_to")
-    distance = models.IntegerField()
+    distance = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ("source", "destination")
+
+    def clean(self):
+        super().clean()
+
+        if self.source == self.destination:
+            raise ValidationError("Source and destination must be different")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.source.name} -> {self.destination.name}"
