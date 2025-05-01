@@ -1,3 +1,7 @@
+from abc import abstractclassmethod
+
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -57,41 +61,70 @@ class Cargo(models.Model):
         return self.description[:40]
 
 
-class CargoAirplane(models.Model):
+class BaseAirplane(models.Model):
     model = models.CharField(max_length=100)
     registration_number = models.CharField(max_length=20, unique=True)
     country_of_origin = models.CharField(max_length=50)
     fuel_type = models.CharField(max_length=20)
-    max_cargo_capacity = models.DecimalField(max_digits=5, decimal_places=2)
-    cargo_hold_volume = models.DecimalField(max_digits=6, decimal_places=2)
     max_range_km = models.PositiveIntegerField(
         validators=[
             MinValueValidator(50)
         ]
     )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return f"{self.model} | {self.registration_number}"
+
+
+class CargoAirplane(BaseAirplane):
+    max_cargo_capacity = models.DecimalField(max_digits=5, decimal_places=2)
+    cargo_hold_volume = models.DecimalField(max_digits=6, decimal_places=2)
     cargos = models.ManyToManyField(
         Cargo,
         related_name="cargo_airplanes",
         blank=True,
     )
 
-    def __str__(self):
-        return f"{self.model} | {self.registration_number}"
+
+class TravelAirplane(BaseAirplane):
+    rows = models.PositiveIntegerField()
+    seats_in_row = models.PositiveIntegerField()
+
+    @property
+    def capacity(self):
+        return self.rows * self.seats_in_row
 
 
-class Flight(models.Model):
-    route = models.ForeignKey(
+class BaseFlight(models.Model):
+    route = models.OneToOneField(
         Route,
         on_delete=models.CASCADE,
-        related_name="flights"
-    )
-    airplane = models.ForeignKey(
-        to=CargoAirplane,
-        on_delete=models.CASCADE,
-        related_name="flights",
     )
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
 
+    class Meta:
+        abstract = True
+
+
+class CargoFlight(BaseFlight):
+    cargo_airplane = models.ForeignKey(
+        to=CargoAirplane,
+        on_delete=models.CASCADE,
+    )
+
     def __str__(self):
-        return f"Flight {self.airplane.name} -> {self.departure_time}"
+        return f"Flight {self.cargo_airplane.model} -> {self.departure_time}"
+
+
+class TravelFlight(BaseFlight):
+    travel_airplane = models.ForeignKey(
+        to=TravelAirplane,
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return f"Flight {self.travel_airplane.model} -> {self.departure_time}"

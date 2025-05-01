@@ -1,14 +1,27 @@
 from rest_framework import viewsets
 
-from airport.models import Airport, Cargo, CargoAirplane, Pilot, Flight, Route
+from airport.models import (
+    Airport,
+    Cargo,
+    CargoAirplane,
+    Pilot,
+    CargoFlight,
+    TravelFlight,
+    Route, TravelAirplane)
 from airport.serializers import (
     AirportSerializer,
     CargoSerializer,
     CargoListSerializer,
     CargoDetailSerializer,
     CargoAirplaneSerializer,
-    CargoAirplaneDetailSerializer, PilotSerializer, CargoAirplaneCreateSerializer, CargoAirplaneUpdateSerializer,
-    FlightSerializer, FlightListSerializer, RouteSerializer
+    PilotSerializer,
+    CargoFlightSerializer,
+    CargoFlightListSerializer,
+    RouteSerializer,
+    TravelFlightListSerializer,
+    TravelFlightSerializer,
+    TravelAirplaneSerializer,
+    TravelAirplaneCreateSerializer
 )
 
 
@@ -31,15 +44,16 @@ class CargoViewSet(viewsets.ModelViewSet):
 
 class CargoAirplaneViewSet(viewsets.ModelViewSet):
     queryset = CargoAirplane.objects.all()
+    serializer_class = CargoAirplaneSerializer
+
+
+class TravelAirplaneViewSet(viewsets.ModelViewSet):
+    queryset = TravelAirplane.objects.all()
 
     def get_serializer_class(self):
-        if self.action == "retrieve":
-            return CargoAirplaneDetailSerializer
-        elif self.action == "create":
-            return CargoAirplaneCreateSerializer
-        elif self.action == "update":
-            return CargoAirplaneUpdateSerializer
-        return CargoAirplaneSerializer
+        if self.action in {"create", "update"}:
+            return TravelAirplaneCreateSerializer
+        return TravelAirplaneSerializer
 
 
 class PilotViewSet(viewsets.ModelViewSet):
@@ -52,10 +66,19 @@ class RouteViewSet(viewsets.ModelViewSet):
     serializer_class = RouteSerializer
 
 
-class FlightViewSet(viewsets.ModelViewSet):
-    queryset = Flight.objects.all()
+class CargoFlightViewSet(viewsets.ModelViewSet):
+    queryset = CargoFlight.objects.all()
 
     def get_serializer_class(self):
         if self.action == "list":
-            return FlightListSerializer
-        return FlightSerializer
+            return CargoFlightListSerializer
+        return CargoFlightSerializer
+
+
+class TravelFlightViewSet(viewsets.ModelViewSet):
+    queryset = TravelFlight.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return TravelFlightListSerializer
+        return TravelFlightSerializer

@@ -1,6 +1,15 @@
 from rest_framework import serializers
 
-from airport.models import Airport, Cargo, CargoAirplane, Pilot, Flight, Route
+from airport.models import (
+    Airport,
+    Cargo,
+    CargoAirplane,
+    Pilot,
+    CargoFlight,
+    TravelFlight,
+    Route,
+    TravelAirplane
+)
 
 
 class AirportSerializer(serializers.ModelSerializer):
@@ -78,65 +87,6 @@ class CargoShortSerializer(serializers.ModelSerializer):
         )
 
 
-class CargoAirplaneShortSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CargoAirplane
-        fields = (
-            "model",
-            "registration_number",
-        )
-
-
-class CargoAirplaneSerializer(serializers.ModelSerializer):
-    cargos_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = CargoAirplane
-        fields = (
-            "id",
-            "model",
-            "registration_number",
-            "country_of_origin",
-            "fuel_type",
-            "max_cargo_capacity",
-            "cargo_hold_volume",
-            "max_range_km",
-            "cargos_count",
-        )
-
-    def get_cargos_count(self, obj):
-        return obj.cargos.count()
-
-
-class CargoAirplaneCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CargoAirplane
-        fields = (
-            "id",
-            "model",
-            "registration_number",
-            "country_of_origin",
-            "fuel_type",
-            "max_cargo_capacity",
-            "cargo_hold_volume",
-            "max_range_km",
-        )
-
-
-class CargoAirplaneUpdateSerializer(CargoAirplaneCreateSerializer):
-    class Meta(CargoAirplaneCreateSerializer.Meta):
-        fields = CargoAirplaneCreateSerializer.Meta.fields + (
-            "cargos",
-        )
-
-
-class CargoAirplaneDetailSerializer(CargoAirplaneCreateSerializer):
-    cargos = CargoShortSerializer(many=True, read_only=True)
-
-    class Meta(CargoAirplaneCreateSerializer.Meta):
-        fields = CargoAirplaneCreateSerializer.Meta.fields + ("cargos",)
-
-
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
@@ -162,9 +112,84 @@ class RouteShortSerializer(serializers.ModelSerializer):
         return str(obj)
 
 
-class FlightSerializer(serializers.ModelSerializer):
+class CargoAirplaneShortSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Flight
+        model = CargoAirplane
+        fields = (
+            "model",
+            "registration_number",
+        )
+
+
+class CargoAirplaneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CargoAirplane
+        fields = (
+            "id",
+            "model",
+            "registration_number",
+            "country_of_origin",
+            "fuel_type",
+            "max_cargo_capacity",
+            "cargo_hold_volume",
+            "max_range_km",
+        )
+
+
+class TravelAirplaneSerializer(serializers.ModelSerializer):
+    capacity = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TravelAirplane
+        fields = (
+            "id",
+            "model",
+            "registration_number",
+            "country_of_origin",
+            "fuel_type",
+            "max_range_km",
+            "capacity"
+        )
+
+    @staticmethod
+    def get_capacity(obj):
+        return obj.capacity
+
+
+class TravelAirplaneCreateSerializer(TravelAirplaneSerializer):
+    class Meta(TravelAirplaneSerializer.Meta):
+        fields = TravelAirplaneSerializer.Meta.fields + (
+            "rows",
+            "seats_in_row"
+        )
+
+
+class TravelAirplaneShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TravelAirplane
+        fields = (
+            "model",
+            "registration_number",
+        )
+
+
+class CargoFlightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CargoFlight
+        fields = (
+            "route",
+            "cargo_airplane",
+            "departure_time",
+            "arrival_time",
+        )
+
+
+class CargoFlightListSerializer(serializers.ModelSerializer):
+    route = RouteShortSerializer()
+    airplane = CargoAirplaneShortSerializer()
+
+    class Meta:
+        model = CargoFlight
         fields = (
             "route",
             "airplane",
@@ -173,15 +198,26 @@ class FlightSerializer(serializers.ModelSerializer):
         )
 
 
-class FlightListSerializer(serializers.ModelSerializer):
-    route = RouteShortSerializer()
-    airplane = CargoAirplaneShortSerializer()
-
+class TravelFlightSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Flight
+        model = TravelFlight
         fields = (
             "route",
-            "airplane",
+            "travel_airplane",
+            "departure_time",
+            "arrival_time",
+        )
+
+
+class TravelFlightListSerializer(serializers.ModelSerializer):
+    route = RouteShortSerializer()
+    airplane = TravelAirplaneShortSerializer()
+
+    class Meta:
+        model = TravelFlight
+        fields = (
+            "route",
+            "travel_airplane",
             "departure_time",
             "arrival_time",
         )
