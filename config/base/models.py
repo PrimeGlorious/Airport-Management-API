@@ -36,10 +36,6 @@ class BaseAirplane(models.Model):
 
 
 class BaseFlight(models.Model):
-    route = models.OneToOneField(
-        Route,
-        on_delete=models.CASCADE,
-    )
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
 

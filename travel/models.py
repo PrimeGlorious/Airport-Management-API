@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 
+from airport.models import Route
 from config.base.models import (
     BaseAirplane,
     BaseFlight
@@ -22,6 +24,31 @@ class TravelFlight(BaseFlight):
         to=TravelAirplane,
         on_delete=models.CASCADE,
     )
+    route = models.ForeignKey(
+        Route,
+        on_delete=models.CASCADE,
+        related_name="travel_flights",
+    )
+
+    def clean(self):
+        super().clean()
+
+        if self.departure_time >= self.arrival_time:
+            raise ValidationError("Departure time must be before arrival time.")
+
+        overlapping_flights = TravelFlight.objects.filter(
+            travel_airplane=self.travel_airplane
+        ).exclude(pk=self.pk).filter(
+            Q(departure_time__lt=self.arrival_time) &
+            Q(arrival_time__gt=self.departure_time)
+        )
+
+        if overlapping_flights.exists():
+            raise ValidationError("This airplane already has a flight in this time range.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return (f"Flight {self.travel_airplane.model}"
