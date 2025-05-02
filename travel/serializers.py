@@ -118,6 +118,9 @@ class TravelOrderSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tickets_data = validated_data.pop("travel_tickets")
+        if not tickets_data:
+            raise serializers.ValidationError("You must provide at least one ticket")
+
         user = self.context["request"].user
 
         with transaction.atomic():

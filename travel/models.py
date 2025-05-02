@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from rest_framework.exceptions import ValidationError
 
 from config.base.models import (
     BaseAirplane,
@@ -51,6 +52,24 @@ class TravelTicket(models.Model):
         related_name="travel_tickets",
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        unique_together = ("row", "seat", "travel_flight")
+
+    def clean(self):
+        super().clean()
+
+        max_rows = self.travel_flight.travel_airplane.rows
+        max_seats = self.travel_flight.travel_airplane.seats_in_row
+
+        if self.row not in range(1, max_rows):
+            raise ValidationError(f"Row must be in range 1, {max_rows}")
+        if self.seat not in range(1, max_seats):
+            raise ValidationError(f"Seat must be in range 1, {max_seats}")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return (f"Ticket #{self.id} (row: {self.row}, "
