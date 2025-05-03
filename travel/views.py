@@ -1,5 +1,6 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import GenericViewSet
 
 from travel.models import TravelFlight, TravelAirplane, TravelOrder
 from travel.serializers import (
@@ -30,7 +31,13 @@ class TravelAirplaneViewSet(viewsets.ModelViewSet):
         return TravelAirplaneSerializer
 
 
-class TravelOrderViewSet(viewsets.ModelViewSet):
+class TravelOrderViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
     queryset = TravelOrder.objects.all().order_by("-created_at")
     permission_classes = (IsAuthenticated, )
 

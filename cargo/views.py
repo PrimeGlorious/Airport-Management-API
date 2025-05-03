@@ -1,5 +1,6 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import GenericViewSet
 
 from cargo.models import Cargo, CargoAirplane, CargoFlight, CargoOrder
 from cargo.serializers import CargoListSerializer, CargoSerializer, CargoAirplaneSerializer, \
@@ -37,7 +38,13 @@ class CargoFlightViewSet(viewsets.ModelViewSet):
         return CargoFlightSerializer
 
 
-class CargoOrderViewSet(viewsets.ModelViewSet):
+class CargoOrderViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
     queryset = CargoOrder.objects.all().order_by("-created_at")
     permission_classes = (IsAuthenticated, )
 
