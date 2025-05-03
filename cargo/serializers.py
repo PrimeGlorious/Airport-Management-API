@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from airport.serializers import RouteShortSerializer
-from cargo.models import CargoFlight, CargoAirplane, Cargo
+from airport.serializers import RouteShortSerializer, RouteSerializer
+from cargo.models import CargoFlight, CargoAirplane, Cargo, CargoOrder
 
 
 class CargoSerializer(serializers.ModelSerializer):
@@ -90,13 +90,62 @@ class CargoFlightSerializer(serializers.ModelSerializer):
 
 class CargoFlightListSerializer(serializers.ModelSerializer):
     route = RouteShortSerializer()
-    airplane = CargoAirplaneShortSerializer()
+    cargo_airplane = CargoAirplaneShortSerializer()
 
     class Meta:
         model = CargoFlight
         fields = (
+            "id",
             "route",
-            "airplane",
+            "cargo_airplane",
             "departure_time",
             "arrival_time",
         )
+
+
+class CargoFlightDetailSerializer(serializers.ModelSerializer):
+    route = RouteSerializer()
+    cargo_airplane = CargoAirplaneSerializer()
+
+    class Meta:
+        model = CargoFlight
+        fields = (
+            "id",
+            "route",
+            "cargo_airplane",
+            "departure_time",
+            "arrival_time",
+        )
+
+
+class CargoOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CargoOrder
+        fields = (
+            "id",
+            "flight",
+            "cargos"
+        )
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        order = CargoOrder.objects.create(user=user, **validated_data)
+        return order
+
+
+class CargoOrderListSerializer(serializers.ModelSerializer):
+    flight = CargoFlightListSerializer()
+    cargos_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CargoOrder
+        fields = (
+            "id",
+            "created_at",
+            "flight",
+            "cargos_count"
+        )
+
+    @staticmethod
+    def get_cargos_count(obj):
+        return obj.cargos.count()

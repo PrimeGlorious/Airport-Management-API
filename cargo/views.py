@@ -1,8 +1,9 @@
 from rest_framework import viewsets
 
-from cargo.models import Cargo, CargoAirplane, CargoFlight
+from cargo.models import Cargo, CargoAirplane, CargoFlight, CargoOrder
 from cargo.serializers import CargoListSerializer, CargoDetailSerializer, CargoSerializer, CargoAirplaneSerializer, \
-    CargoFlightListSerializer, CargoFlightSerializer
+    CargoFlightListSerializer, CargoFlightSerializer, CargoOrderSerializer, CargoOrderListSerializer, \
+    CargoFlightDetailSerializer
 
 
 class CargoViewSet(viewsets.ModelViewSet):
@@ -28,4 +29,14 @@ class CargoFlightViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return CargoFlightListSerializer
+        elif self.action == "retrieve":
+            return CargoFlightDetailSerializer
         return CargoFlightSerializer
+
+
+class CargoOrderViewSet(viewsets.ModelViewSet):
+    queryset = CargoOrder.objects.all()
+    def get_serializer_class(self):
+        if self.action == "list":
+            return CargoOrderListSerializer
+        return CargoOrderSerializer
