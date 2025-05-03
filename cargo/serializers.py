@@ -15,6 +15,11 @@ class CargoSerializer(serializers.ModelSerializer):
             "volume"
         )
 
+    def create(self, validated_data):
+        user = self.context.get("user")
+        cargo = Cargo.objects.create(user=user, **validated_data)
+        return cargo
+
 
 class CargoListSerializer(serializers.ModelSerializer):
     shorted_description = serializers.SerializerMethodField()

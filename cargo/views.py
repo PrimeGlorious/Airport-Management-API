@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 
 from cargo.models import Cargo, CargoAirplane, CargoFlight, CargoOrder
 from cargo.serializers import CargoListSerializer, CargoSerializer, CargoAirplaneSerializer, \
@@ -8,6 +9,10 @@ from cargo.serializers import CargoListSerializer, CargoSerializer, CargoAirplan
 
 class CargoViewSet(viewsets.ModelViewSet):
     queryset = Cargo.objects.all()
+    permission_classes = (IsAuthenticated, )
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -22,7 +27,7 @@ class CargoAirplaneViewSet(viewsets.ModelViewSet):
 
 
 class CargoFlightViewSet(viewsets.ModelViewSet):
-    queryset = CargoFlight.objects.all()
+    queryset = CargoFlight.objects.all().order_by("-departure_time")
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -33,7 +38,12 @@ class CargoFlightViewSet(viewsets.ModelViewSet):
 
 
 class CargoOrderViewSet(viewsets.ModelViewSet):
-    queryset = CargoOrder.objects.all()
+    queryset = CargoOrder.objects.all().order_by("-created_at")
+    permission_classes = (IsAuthenticated, )
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
     def get_serializer_class(self):
         if self.action == "list":
             return CargoOrderListSerializer

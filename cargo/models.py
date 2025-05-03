@@ -31,6 +31,11 @@ class Cargo(models.Model):
             MaxValueValidator(5)
         ],
     )
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="cargos",
+    )
 
     def __str__(self):
         return (f"{self.shorted_description} || "

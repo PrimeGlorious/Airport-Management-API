@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 
 from travel.models import TravelFlight, TravelAirplane, TravelOrder
 from travel.serializers import (
@@ -10,7 +11,7 @@ from travel.serializers import (
 
 
 class TravelFlightViewSet(viewsets.ModelViewSet):
-    queryset = TravelFlight.objects.all()
+    queryset = TravelFlight.objects.all().order_by("-departure_time")
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -30,7 +31,8 @@ class TravelAirplaneViewSet(viewsets.ModelViewSet):
 
 
 class TravelOrderViewSet(viewsets.ModelViewSet):
-    queryset = TravelOrder.objects.all()
+    queryset = TravelOrder.objects.all().order_by("-created_at")
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
