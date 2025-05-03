@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -17,7 +19,7 @@ class Cargo(models.Model):
         max_digits=10,
         decimal_places=2,
         validators=[
-            MinValueValidator(0),
+            MinValueValidator(Decimal("0.01")),
             MaxValueValidator(500)
         ],
     )
@@ -25,7 +27,7 @@ class Cargo(models.Model):
         max_digits=10,
         decimal_places=2,
         validators=[
-            MinValueValidator(0),
+            MinValueValidator(Decimal("0.01")),
             MaxValueValidator(5)
         ],
     )
