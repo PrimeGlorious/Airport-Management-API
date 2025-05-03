@@ -9,7 +9,7 @@ from cargo.views import (
 
 router = DefaultRouter()
 
-router.register("cargos", CargoViewSet)
+router.register("my-cargos", CargoViewSet)
 router.register("cargo-airplanes", CargoAirplaneViewSet)
 router.register("cargo-flights", CargoFlightViewSet)
 

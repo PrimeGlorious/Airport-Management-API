@@ -25,8 +25,6 @@ class CargoListSerializer(serializers.ModelSerializer):
             "shorted_description",
             "weight",
             "volume",
-            "is_delivered",
-            "condition"
         )
 
     @staticmethod
@@ -42,8 +40,6 @@ class CargoDetailSerializer(serializers.ModelSerializer):
             "description",
             "weight",
             "volume",
-            "is_delivered",
-            "condition"
         )
 
 
