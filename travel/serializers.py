@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from airport.serializers import RouteShortSerializer
+from airport.serializers import RouteShortSerializer, PilotSerializer
 from travel.models import TravelAirplane, TravelFlight, TravelOrder, TravelTicket
 
 
@@ -54,6 +54,12 @@ class TravelFlightSerializer(serializers.ModelSerializer):
         )
 
 
+class TravelFlightDetailSerializer(TravelFlightSerializer):
+    route = RouteShortSerializer()
+    travel_airplane = TravelAirplaneShortSerializer()
+    pilots = PilotSerializer(many=True, read_only=True)
+
+
 class TravelFlightListSerializer(serializers.ModelSerializer):
     route = RouteShortSerializer()
     travel_airplane = TravelAirplaneShortSerializer()
@@ -66,6 +72,7 @@ class TravelFlightListSerializer(serializers.ModelSerializer):
     class Meta:
         model = TravelFlight
         fields = (
+            "id",
             "route",
             "travel_airplane",
             "pilots",
@@ -75,6 +82,8 @@ class TravelFlightListSerializer(serializers.ModelSerializer):
 
 
 class TravelTicketSerializer(serializers.ModelSerializer):
+    travel_flight = TravelFlightDetailSerializer()
+
     class Meta:
         model = TravelTicket
         fields = (

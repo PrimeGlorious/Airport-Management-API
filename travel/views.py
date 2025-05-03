@@ -5,7 +5,7 @@ from travel.serializers import (
     TravelFlightListSerializer,
     TravelFlightSerializer,
     TravelAirplaneCreateSerializer,
-    TravelAirplaneSerializer, TravelOrderSerializer, TravelOrderListSerializer
+    TravelAirplaneSerializer, TravelOrderSerializer, TravelOrderListSerializer, TravelFlightDetailSerializer
 )
 
 
@@ -15,6 +15,8 @@ class TravelFlightViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return TravelFlightListSerializer
+        if self.action == "retrieve":
+            return TravelFlightDetailSerializer
         return TravelFlightSerializer
 
 
