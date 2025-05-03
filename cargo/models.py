@@ -1,5 +1,6 @@
 from django.db import models
 
+from airport.models import Route
 from config.base.models import (
     BaseAirplane,
     BaseFlight
@@ -44,6 +45,11 @@ class CargoFlight(BaseFlight):
     cargo_airplane = models.ForeignKey(
         to=CargoAirplane,
         on_delete=models.CASCADE,
+    )
+    route = models.ForeignKey(
+        Route,
+        on_delete=models.CASCADE,
+        related_name="cargo_flights",
     )
 
     def __str__(self):

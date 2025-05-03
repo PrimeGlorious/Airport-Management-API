@@ -48,6 +48,7 @@ class TravelFlightSerializer(serializers.ModelSerializer):
         fields = (
             "route",
             "travel_airplane",
+            "pilots",
             "departure_time",
             "arrival_time",
         )
@@ -56,12 +57,18 @@ class TravelFlightSerializer(serializers.ModelSerializer):
 class TravelFlightListSerializer(serializers.ModelSerializer):
     route = RouteShortSerializer()
     travel_airplane = TravelAirplaneShortSerializer()
+    pilots = serializers.SlugRelatedField(
+        read_only=True,
+        many=True,
+        slug_field="full_name",
+    )
 
     class Meta:
         model = TravelFlight
         fields = (
             "route",
             "travel_airplane",
+            "pilots",
             "departure_time",
             "arrival_time",
         )

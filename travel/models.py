@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 
-from airport.models import Route
+from airport.models import Route, Pilot
 from config.base.models import (
     BaseAirplane,
     BaseFlight
@@ -23,6 +23,10 @@ class TravelFlight(BaseFlight):
     travel_airplane = models.ForeignKey(
         to=TravelAirplane,
         on_delete=models.CASCADE,
+    )
+    pilots = models.ManyToManyField(
+        to=Pilot,
+        related_name="travel_flights",
     )
     route = models.ForeignKey(
         Route,
