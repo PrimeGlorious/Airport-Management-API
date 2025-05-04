@@ -1,7 +1,10 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
+from config.custom.mixins import AirPlaneFilteringMixin
 from travel.models import TravelFlight, TravelAirplane, TravelOrder
 from travel.serializers import (
     TravelFlightListSerializer,
@@ -22,7 +25,35 @@ class TravelFlightViewSet(viewsets.ModelViewSet):
         return TravelFlightSerializer
 
 
-class TravelAirplaneViewSet(viewsets.ModelViewSet):
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="min_range",
+            description="Minimum range (km) the airplane can fly",
+            required=False,
+            type=OpenApiTypes.INT,
+        ),
+        OpenApiParameter(
+            name="max_range",
+            description="Maximum range (km) the airplane can fly",
+            required=False,
+            type=OpenApiTypes.INT,
+        ),
+        OpenApiParameter(
+            name="model",
+            description="Model name (partial match, case-insensitive)",
+            required=False,
+            type=OpenApiTypes.STR,
+        ),
+        OpenApiParameter(
+            name="country",
+            description="Country of origin (partial match, case-insensitive)",
+            required=False,
+            type=OpenApiTypes.STR,
+        ),
+    ]
+)
+class TravelAirplaneViewSet(AirPlaneFilteringMixin, viewsets.ModelViewSet):
     queryset = TravelAirplane.objects.all()
 
     def get_serializer_class(self):
