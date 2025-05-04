@@ -16,7 +16,7 @@ class CargoSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        user = self.context.get("user")
+        user = self.context.get("request").user
         cargo = Cargo.objects.create(user=user, **validated_data)
         return cargo
 
@@ -114,33 +114,28 @@ class CargoFlightDetailSerializer(serializers.ModelSerializer):
 
 
 class CargoOrderSerializer(serializers.ModelSerializer):
-    cargos = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Cargo.objects.all()
-    )
-
     class Meta:
         model = CargoOrder
-        fields = (
-            "id",
-            "flight",
-            "cargos"
+        fields = ("id", "flight", "cargos")
+
+    def get_fields(self):
+        fields = super().get_fields()
+        user = self.context["request"].user
+        fields["cargos"] = serializers.PrimaryKeyRelatedField(
+            many=True,
+            queryset=Cargo.objects.filter(user=user)
         )
+        return fields
 
     def create(self, validated_data):
         cargos = validated_data.pop("cargos")
         if not cargos:
-            raise ValidationError(
-                "You must provide at least one cargo."
-            )
+            raise ValidationError("You must provide at least one cargo.")
         user = self.context["request"].user
 
-        order = CargoOrder.objects.create(user=user, **validated_data)
-        order.cargos.set(cargos)
-
-        airplane = order.flight.cargo_airplane
-        total_weight = sum(cargo.weight for cargo in order.cargos.all())
-        total_volume = sum(cargo.volume for cargo in order.cargos.all())
+        total_weight = sum(c.weight for c in cargos)
+        total_volume = sum(c.volume for c in cargos)
+        airplane = validated_data["flight"].cargo_airplane
 
         if total_weight > airplane.max_cargo_capacity:
             raise ValidationError(
@@ -152,6 +147,8 @@ class CargoOrderSerializer(serializers.ModelSerializer):
                 f"Total volume of cargo ({total_volume}) exceeds the aircraft's maximum allowable capacity. ({airplane.cargo_hold_volume})."
             )
 
+        order = CargoOrder.objects.create(user=user, **validated_data)
+        order.cargos.set(cargos)
         return order
 
 

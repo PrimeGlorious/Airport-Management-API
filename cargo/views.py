@@ -24,7 +24,13 @@ from cargo.serializers import (
 from config.custom.mixins import AirPlaneFilteringMixin
 
 
-class CargoViewSet(viewsets.ModelViewSet):
+class CargoViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
     queryset = Cargo.objects.all()
     permission_classes = (IsAuthenticated, )
 
@@ -94,6 +100,11 @@ class CargoOrderViewSet(
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
 
     def get_serializer_class(self):
         if self.action == "list":

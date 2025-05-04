@@ -49,8 +49,20 @@ class Cargo(models.Model):
 
 
 class CargoAirplane(BaseAirplane):
-    max_cargo_capacity = models.DecimalField(max_digits=10, decimal_places=2)
-    cargo_hold_volume = models.DecimalField(max_digits=10, decimal_places=2)
+    max_cargo_capacity = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(Decimal("0.01")),
+        ]
+    )
+    cargo_hold_volume = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(Decimal("0.01")),
+        ]
+    )
 
 
 class CargoFlight(BaseFlight):
