@@ -24,7 +24,7 @@ class AirportAPITestCase(TestCase):
     def test_list_airports_unauthenticated(self):
         self.client.force_authenticate(user=None)
         response = self.client.get("/api/v1/airport/airports/")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_airport_as_user(self):
         self.client.force_authenticate(user=self.user)

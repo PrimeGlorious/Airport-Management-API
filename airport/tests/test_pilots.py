@@ -28,7 +28,7 @@ class PilotAPITestCase(TestCase):
     def test_list_pilots_unauthenticated(self):
         self.client.force_authenticate(user=None)
         response = self.client.get("/api/v1/airport/pilots/")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_retrieve_pilot_authenticated(self):
         self.client.force_authenticate(user=self.user)

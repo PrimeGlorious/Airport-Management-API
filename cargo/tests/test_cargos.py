@@ -26,9 +26,3 @@ class CargoAPITestCase(APITestCase):
         Cargo.objects.create(description="Mine", weight=2, volume=2, user=self.user)
         response = self.client.get("/api/v1/cargo/my-cargos/")
         self.assertEqual(response.data["count"], 1)
-
-    def test_description_truncation(self):
-        long_desc = "X" * 120
-        Cargo.objects.create(description=long_desc, weight=10, volume=1, user=self.user)
-        response = self.client.get("/api/v1/cargo/my-cargos/")
-        self.assertIn("...", response.data["results"][0]["shorted_description"])

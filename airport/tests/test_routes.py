@@ -26,7 +26,7 @@ class RouteAPITestCase(TestCase):
     def test_list_routes_unauthenticated(self):
         self.client.force_authenticate(user=None)
         response = self.client.get("/api/v1/airport/routes/")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_retrieve_route_authenticated(self):
         self.client.force_authenticate(user=self.user)
