@@ -10,7 +10,8 @@ from travel.serializers import (
     TravelFlightListSerializer,
     TravelFlightSerializer,
     TravelAirplaneCreateSerializer,
-    TravelAirplaneSerializer, TravelOrderSerializer, TravelOrderListSerializer, TravelFlightDetailSerializer
+    TravelAirplaneSerializer, TravelOrderSerializer, TravelOrderListSerializer, TravelFlightDetailSerializer,
+    TravelOrderCreateSerializer
 )
 
 
@@ -78,4 +79,6 @@ class TravelOrderViewSet(
     def get_serializer_class(self):
         if self.action == "list":
             return TravelOrderListSerializer
+        elif self.action == "create":
+            return TravelOrderCreateSerializer
         return TravelOrderSerializer

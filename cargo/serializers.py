@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -120,11 +121,19 @@ class CargoOrderSerializer(serializers.ModelSerializer):
 
     def get_fields(self):
         fields = super().get_fields()
-        user = self.context["request"].user
-        fields["cargos"] = serializers.PrimaryKeyRelatedField(
-            many=True,
-            queryset=Cargo.objects.filter(user=user)
-        )
+        request = self.context.get("request")
+
+        if request and hasattr(request, "user") and not isinstance(request.user, AnonymousUser):
+            user = request.user
+            fields["cargos"] = serializers.PrimaryKeyRelatedField(
+                many=True,
+                queryset=Cargo.objects.filter(user=user)
+            )
+        else:
+            fields["cargos"] = serializers.PrimaryKeyRelatedField(
+                many=True,
+                queryset=Cargo.objects.none()
+            )
         return fields
 
     def create(self, validated_data):

@@ -122,7 +122,25 @@ class TravelOrderListSerializer(serializers.ModelSerializer):
 
 
 class TravelOrderSerializer(serializers.ModelSerializer):
-    travel_tickets = TravelTicketSerializer(many=True)
+    travel_tickets = TravelTicketSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TravelOrder
+        fields = (
+            "id",
+            "travel_tickets",
+            "created_at"
+        )
+
+
+class TravelTicketCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TravelTicket
+        fields = ("row", "seat", "travel_flight")
+
+
+class TravelOrderCreateSerializer(serializers.ModelSerializer):
+    travel_tickets = TravelTicketCreateSerializer(many=True)
 
     class Meta:
         model = TravelOrder
