@@ -47,3 +47,19 @@ class AirportAPITestCase(TestCase):
         self.client.force_authenticate(user=self.admin_user)
         response = self.client.delete(f"/api/v1/airport/airports/{self.airport.id}/")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_filter_airports_by_name(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get("/api/v1/airport/airports/?name=heath")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.data["results"][0]["name"], "Heathrow")
+
+    def test_filter_airports_by_city(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get("/api/v1/airport/airports/?city=london")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.data["results"][0]["closest_big_city"], "London")

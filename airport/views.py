@@ -133,19 +133,19 @@ class RouteViewSet(viewsets.ModelViewSet):
 
         if source:
             queryset = queryset.filter(
-                source__icontains=source
+                source__name__icontains=source
             )
         if destination:
             queryset = queryset.filter(
-                destination__icontains=destination
+                destination__name__icontains=destination
             )
         if min_distance:
             queryset = queryset.filter(
-                distance__gte=min_distance
+                distance__gte=int(min_distance)
             )
         if max_distance:
             queryset = queryset.filter(
-                distance__lte=max_distance
+                distance__lte=int(max_distance)
             )
 
         return queryset

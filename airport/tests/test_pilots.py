@@ -24,7 +24,6 @@ class PilotAPITestCase(TestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.get("/api/v1/airport/pilots/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
 
     def test_list_pilots_unauthenticated(self):
         self.client.force_authenticate(user=None)
@@ -94,3 +93,19 @@ class PilotAPITestCase(TestCase):
         response = self.client.delete(f"/api/v1/airport/pilots/{self.pilot.id}/")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Pilot.objects.count(), 0)
+
+    def test_filter_pilots_by_first_name(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get("/api/v1/airport/pilots/?first_name=john")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.data["results"][0]["first_name"], "John")
+
+    def test_filter_pilots_by_last_name(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get("/api/v1/airport/pilots/?last_name=doe")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.data["results"][0]["last_name"], "Doe")

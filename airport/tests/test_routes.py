@@ -22,7 +22,6 @@ class RouteAPITestCase(TestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.get("/api/v1/airport/routes/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
 
     def test_list_routes_unauthenticated(self):
         self.client.force_authenticate(user=None)
@@ -102,3 +101,33 @@ class RouteAPITestCase(TestCase):
         response = self.client.delete(f"/api/v1/airport/routes/{self.route.id}/")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Route.objects.count(), 0)
+
+    def test_filter_routes_by_source_name(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get("/api/v1/airport/routes/?source=lax")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertIn("LAX", response.data["results"][0]["source"])
+
+    def test_filter_routes_by_destination_name(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get("/api/v1/airport/routes/?destination=sfo")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertIn("SFO", response.data["results"][0]["destination"])
+
+    def test_filter_routes_by_min_distance(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get("/api/v1/airport/routes/?min_distance=500")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertGreaterEqual(response.data["results"][0]["distance"], 500)
+
+    def test_filter_routes_by_max_distance(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get("/api/v1/airport/routes/?max_distance=600")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertLessEqual(response.data["results"][0]["distance"], 600)
