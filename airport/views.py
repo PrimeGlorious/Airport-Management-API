@@ -54,9 +54,42 @@ class AirportViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="first_name",
+            description="Pilot's first name (partial match, case-insensitive)",
+            required=False,
+            type=OpenApiTypes.STR,
+        ),
+        OpenApiParameter(
+            name="last_name",
+            description="Pilot's last name (partial match, case-insensitive)",
+            required=False,
+            type=OpenApiTypes.STR,
+        ),
+    ]
+)
 class PilotViewSet(viewsets.ModelViewSet):
     queryset = Pilot.objects.all()
     serializer_class = PilotSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+
+        first_name = self.request.query_params.get("first_name")
+        last_name = self.request.query_params.get("last_name")
+
+        if first_name:
+            queryset = queryset.filter(
+                first_name__icontains=first_name
+            )
+        if last_name:
+            queryset = queryset.filter(
+                last_name__icontains=last_name
+            )
+
+        return queryset
 
 
 class RouteViewSet(viewsets.ModelViewSet):
