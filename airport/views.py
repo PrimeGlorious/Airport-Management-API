@@ -92,8 +92,65 @@ class PilotViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="source",
+            description="Source location (partial match, case-insensitive)",
+            required=False,
+            type=OpenApiTypes.STR,
+        ),
+        OpenApiParameter(
+            name="destination",
+            description="Destination location (partial match, case-insensitive)",
+            required=False,
+            type=OpenApiTypes.STR,
+        ),
+        OpenApiParameter(
+            name="min_distance",
+            description="Minimum distance of the route in kilometers",
+            required=False,
+            type=OpenApiTypes.INT,
+        ),
+        OpenApiParameter(
+            name="max_distance",
+            description="Maximum distance of the route in kilometers",
+            required=False,
+            type=OpenApiTypes.INT,
+        ),
+    ]
+)
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
+
+    def get_queryset(self):
+        queryset = self.queryset
+
+        source = self.request.query_params.get("source")
+        destination = self.request.query_params.get("destination")
+        min_distance = self.request.query_params.get("min_distance")
+        max_distance = self.request.query_params.get("max_distance")
+
+        if source:
+            queryset = queryset.filter(
+                source__icontains=source
+            )
+        if destination:
+            queryset = queryset.filter(
+                destination__icontains=destination
+            )
+        if min_distance:
+            queryset = queryset.filter(
+                distance__gte=min_distance
+            )
+        if max_distance:
+            queryset = queryset.filter(
+                distance__lte=max_distance
+            )
+
+        return queryset
+
+
 
     def get_serializer_class(self):
         if self.action == "list":
