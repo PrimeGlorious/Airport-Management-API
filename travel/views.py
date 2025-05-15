@@ -16,7 +16,13 @@ from travel.serializers import (
 
 
 class TravelFlightViewSet(viewsets.ModelViewSet):
-    queryset = TravelFlight.objects.all().order_by("-departure_time")
+    queryset = TravelFlight.objects.all().order_by(
+        "-departure_time"
+    ).select_related(
+        "travel_airplane", "route"
+    ).prefetch_related(
+        "pilots"
+    )
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -70,7 +76,9 @@ class TravelOrderViewSet(
     mixins.ListModelMixin,
     GenericViewSet
 ):
-    queryset = TravelOrder.objects.all().order_by("-created_at")
+    queryset = TravelOrder.objects.all().order_by(
+        "-created_at"
+    ).prefetch_related("travel_tickets")
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):

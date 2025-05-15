@@ -1,3 +1,4 @@
+from django.views.generic import detail
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
@@ -126,6 +127,9 @@ class RouteViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
 
+        if self.action in {"list", "retrieve"}:
+            queryset = queryset.prefetch_related("source", "destination")
+
         source = self.request.query_params.get("source")
         destination = self.request.query_params.get("destination")
         min_distance = self.request.query_params.get("min_distance")
@@ -149,8 +153,6 @@ class RouteViewSet(viewsets.ModelViewSet):
             )
 
         return queryset
-
-
 
     def get_serializer_class(self):
         if self.action == "list":

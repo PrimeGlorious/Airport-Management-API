@@ -78,7 +78,9 @@ class CargoAirplaneViewSet(AirPlaneFilteringMixin, viewsets.ModelViewSet):
 
 
 class CargoFlightViewSet(viewsets.ModelViewSet):
-    queryset = CargoFlight.objects.all().order_by("-departure_time")
+    queryset = CargoFlight.objects.all().order_by(
+        "-departure_time"
+    ).select_related("cargo_airplane", "route")
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -95,7 +97,9 @@ class CargoOrderViewSet(
     mixins.ListModelMixin,
     GenericViewSet
 ):
-    queryset = CargoOrder.objects.all().order_by("-created_at")
+    queryset = CargoOrder.objects.all().order_by(
+        "-created_at"
+    ).select_related("flight").prefetch_related("cargos")
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
