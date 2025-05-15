@@ -33,6 +33,7 @@ urlpatterns = [
     path("api/v1/airport/", include("airport.urls", namespace="airport")),
     path("api/v1/travel/", include("travel.urls", namespace="travel")),
     path("api/v1/cargo/", include("cargo.urls", namespace="cargo")),
+    path("api/v1/users/", include("users.urls", namespace="users")),
     # DOCS
     path("api/doc/", SpectacularAPIView.as_view(), name="schema"),
     path("api/doc/swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
