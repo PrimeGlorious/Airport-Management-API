@@ -4,7 +4,7 @@ from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
-from config.custom.mixins import AirPlaneFilteringMixin
+from core.custom.mixins import AirPlaneFilteringMixin
 from travel.models import TravelFlight, TravelAirplane, TravelOrder
 from travel.serializers import (
     TravelFlightListSerializer,

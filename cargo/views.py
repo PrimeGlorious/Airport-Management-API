@@ -21,7 +21,7 @@ from cargo.serializers import (
     CargoFlightDetailSerializer,
     CargoOrderDetailSerializer
 )
-from config.custom.mixins import AirPlaneFilteringMixin
+from core.custom.mixins import AirPlaneFilteringMixin
 
 
 class CargoViewSet(

@@ -7,7 +7,7 @@ from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 
 from airport.models import Route, Pilot
-from config.base.models import (
+from core.models import (
     BaseAirplane,
     BaseFlight
 )
