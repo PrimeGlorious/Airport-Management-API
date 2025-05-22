@@ -1,3 +1,4 @@
+from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.utils import timezone
@@ -32,6 +33,12 @@ class CargoFlightAPITestCase(APITestCase):
             max_range_km=9700
         )
 
+    def get_list_url(self):
+        return reverse("cargo:cargoflight-list")
+
+    def get_detail_url(self, pk):
+        return reverse("cargo:cargoflight-detail", kwargs={"pk": pk})
+
     def test_create_valid_flight(self):
         dep = timezone.now() + timedelta(days=1)
         arr = dep + timedelta(hours=5)
@@ -41,7 +48,7 @@ class CargoFlightAPITestCase(APITestCase):
             "departure_time": dep.isoformat(),
             "arrival_time": arr.isoformat()
         }
-        response = self.client.post("/api/v1/cargo/cargo-flights/", data)
+        response = self.client.post(self.get_list_url(), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_invalid_flight_time(self):
@@ -52,7 +59,7 @@ class CargoFlightAPITestCase(APITestCase):
             "departure_time": now.isoformat(),
             "arrival_time": now.isoformat()
         }
-        response = self.client.post("/api/v1/cargo/cargo-flights/", data)
+        response = self.client.post(self.get_list_url(), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_overlapping_flights(self):
@@ -69,7 +76,7 @@ class CargoFlightAPITestCase(APITestCase):
             "departure_time": base_time + timedelta(hours=2),
             "arrival_time": base_time + timedelta(hours=6)
         }
-        response = self.client.post("/api/v1/cargo/cargo-flights/", data)
+        response = self.client.post(self.get_list_url(), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_list_flights(self):
@@ -81,6 +88,6 @@ class CargoFlightAPITestCase(APITestCase):
             departure_time=dep,
             arrival_time=arr
         )
-        response = self.client.get("/api/v1/cargo/cargo-flights/")
+        response = self.client.get(self.get_list_url())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 1)

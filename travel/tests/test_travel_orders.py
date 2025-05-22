@@ -1,3 +1,4 @@
+from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.utils import timezone
@@ -47,6 +48,9 @@ class TravelOrderAPITestCase(APITestCase):
         )
         self.flight.pilots.set([self.pilot])
 
+    def get_list_url(self):
+        return reverse("travel:travelorder-list")
+
     def test_create_valid_order_with_ticket(self):
         data = {
             "travel_tickets": [
@@ -57,7 +61,7 @@ class TravelOrderAPITestCase(APITestCase):
                 }
             ]
         }
-        response = self.client.post("/api/v1/travel/my-orders/", data, format="json")
+        response = self.client.post(self.get_list_url(), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(TravelOrder.objects.count(), 1)
         self.assertEqual(TravelTicket.objects.count(), 1)
@@ -72,14 +76,14 @@ class TravelOrderAPITestCase(APITestCase):
                 }
             ]
         }
-        response = self.client.post("/api/v1/travel/my-orders/", data, format="json")
+        response = self.client.post(self.get_list_url(), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_order_without_tickets(self):
         data = {
             "travel_tickets": []
         }
-        response = self.client.post("/api/v1/travel/my-orders/", data, format="json")
+        response = self.client.post(self.get_list_url(), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_order_with_duplicate_seat(self):
@@ -98,7 +102,7 @@ class TravelOrderAPITestCase(APITestCase):
                 }
             ]
         }
-        response = self.client.post("/api/v1/travel/my-orders/", data, format="json")
+        response = self.client.post(self.get_list_url(), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_list_only_own_orders(self):
@@ -110,6 +114,6 @@ class TravelOrderAPITestCase(APITestCase):
             travel_flight=self.flight,
             order=other_order
         )
-        response = self.client.get("/api/v1/travel/my-orders/")
+        response = self.client.get(self.get_list_url())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 0)

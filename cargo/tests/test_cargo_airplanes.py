@@ -1,7 +1,9 @@
+from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from cargo.models import CargoAirplane
+
 
 User = get_user_model()
 
@@ -9,6 +11,12 @@ class CargoAirplaneAPITestCase(APITestCase):
     def setUp(self):
         self.admin = User.objects.create_superuser("admin", "admin@test.com", "pass")
         self.client.force_authenticate(user=self.admin)
+
+    def get_list_url(self):
+        return reverse("cargo:cargoairplane-list")
+
+    def get_detail_url(self, pk):
+        return reverse("cargo:cargoairplane-detail", kwargs={"pk": pk})
 
     def test_create_airplane(self):
         data = {
@@ -20,7 +28,7 @@ class CargoAirplaneAPITestCase(APITestCase):
             "cargo_hold_volume": 200,
             "max_range_km": 5000
         }
-        response = self.client.post("/api/v1/cargo/cargo-airplanes/", data)
+        response = self.client.post(self.get_list_url(), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_invalid_capacity(self):
@@ -33,7 +41,7 @@ class CargoAirplaneAPITestCase(APITestCase):
             "cargo_hold_volume": 100,
             "max_range_km": 1000
         }
-        response = self.client.post("/api/v1/cargo/cargo-airplanes/", data)
+        response = self.client.post(self.get_list_url(), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_filter_by_model(self):
@@ -46,7 +54,8 @@ class CargoAirplaneAPITestCase(APITestCase):
             cargo_hold_volume=300,
             max_range_km=10000
         )
-        response = self.client.get("/api/v1/cargo/cargo-airplanes/?model=boeing")
+        url = self.get_list_url() + "?model=boeing"
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 1)
         self.assertEqual(len(response.data["results"]), 1)

@@ -1,3 +1,4 @@
+from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.utils import timezone
@@ -5,6 +6,7 @@ from datetime import timedelta
 from django.contrib.auth import get_user_model
 from airport.models import Airport, Route
 from cargo.models import CargoAirplane, Cargo, CargoFlight, CargoOrder
+
 
 User = get_user_model()
 
@@ -46,12 +48,15 @@ class CargoOrderAPITestCase(APITestCase):
             volume=200
         )
 
+    def get_list_url(self):
+        return reverse("cargo:cargoorder-list")
+
     def test_create_order_valid(self):
         data = {
             "flight": self.flight.id,
             "cargos": [self.cargo.id]
         }
-        response = self.client.post("/api/v1/cargo/my-orders/", data)
+        response = self.client.post(self.get_list_url(), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_exceed_weight_limit(self):
@@ -61,7 +66,7 @@ class CargoOrderAPITestCase(APITestCase):
             "flight": self.flight.id,
             "cargos": [self.cargo.id]
         }
-        response = self.client.post("/api/v1/cargo/my-orders/", data)
+        response = self.client.post(self.get_list_url(), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_exceed_volume_limit(self):
@@ -71,7 +76,7 @@ class CargoOrderAPITestCase(APITestCase):
             "flight": self.flight.id,
             "cargos": [self.cargo.id]
         }
-        response = self.client.post("/api/v1/cargo/my-orders/", data)
+        response = self.client.post(self.get_list_url(), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_order_without_cargos(self):
@@ -79,7 +84,7 @@ class CargoOrderAPITestCase(APITestCase):
             "flight": self.flight.id,
             "cargos": []
         }
-        response = self.client.post("/api/v1/cargo/my-orders/", data)
+        response = self.client.post(self.get_list_url(), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_order_with_foreign_cargo(self):
@@ -94,7 +99,7 @@ class CargoOrderAPITestCase(APITestCase):
             "flight": self.flight.id,
             "cargos": [foreign_cargo.id]
         }
-        response = self.client.post("/api/v1/cargo/my-orders/", data)
+        response = self.client.post(self.get_list_url(), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_list_only_own_orders(self):
@@ -106,5 +111,6 @@ class CargoOrderAPITestCase(APITestCase):
             volume=20
         )
         CargoOrder.objects.create(user=other_user, flight=self.flight)
-        response = self.client.get("/api/v1/cargo/my-orders/")
+        response = self.client.get(self.get_list_url())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 0)
