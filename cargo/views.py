@@ -1,5 +1,3 @@
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
@@ -10,6 +8,7 @@ from cargo.models import (
     CargoFlight,
     CargoOrder
 )
+from cargo.schemas import cargo_airplane_schema
 from cargo.serializers import (
     CargoListSerializer,
     CargoSerializer,
@@ -44,34 +43,7 @@ class CargoViewSet(
         return CargoSerializer
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name="min_range",
-            description="Minimum range (km) the airplane can fly",
-            required=False,
-            type=OpenApiTypes.INT,
-        ),
-        OpenApiParameter(
-            name="max_range",
-            description="Maximum range (km) the airplane can fly",
-            required=False,
-            type=OpenApiTypes.INT,
-        ),
-        OpenApiParameter(
-            name="model",
-            description="Model name (partial match, case-insensitive)",
-            required=False,
-            type=OpenApiTypes.STR,
-        ),
-        OpenApiParameter(
-            name="country",
-            description="Country of origin (partial match, case-insensitive)",
-            required=False,
-            type=OpenApiTypes.STR,
-        ),
-    ]
-)
+@cargo_airplane_schema
 class CargoAirplaneViewSet(AirPlaneFilteringMixin, viewsets.ModelViewSet):
     queryset = CargoAirplane.objects.all()
     serializer_class = CargoAirplaneSerializer

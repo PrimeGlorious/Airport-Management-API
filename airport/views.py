@@ -1,6 +1,3 @@
-from django.views.generic import detail
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
 
 from airport.models import (
@@ -8,6 +5,7 @@ from airport.models import (
     Pilot,
     Route,
 )
+from airport.schemas import route_schema, pilot_schema, airport_schema
 from airport.serializers import (
     AirportSerializer,
     PilotSerializer,
@@ -17,22 +15,7 @@ from airport.serializers import (
 )
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name="name",
-            description="Partial name of the airport (case-insensitive)",
-            required=False,
-            type=OpenApiTypes.STR,
-        ),
-        OpenApiParameter(
-            name="city",
-            description="Partial name of the closest big city (case-insensitive)",
-            required=False,
-            type=OpenApiTypes.STR,
-        ),
-    ]
-)
+@airport_schema
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
@@ -55,22 +38,7 @@ class AirportViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name="first_name",
-            description="Pilot's first name (partial match, case-insensitive)",
-            required=False,
-            type=OpenApiTypes.STR,
-        ),
-        OpenApiParameter(
-            name="last_name",
-            description="Pilot's last name (partial match, case-insensitive)",
-            required=False,
-            type=OpenApiTypes.STR,
-        ),
-    ]
-)
+@pilot_schema
 class PilotViewSet(viewsets.ModelViewSet):
     queryset = Pilot.objects.all()
     serializer_class = PilotSerializer
@@ -93,34 +61,7 @@ class PilotViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name="source",
-            description="Source location (partial match, case-insensitive)",
-            required=False,
-            type=OpenApiTypes.STR,
-        ),
-        OpenApiParameter(
-            name="destination",
-            description="Destination location (partial match, case-insensitive)",
-            required=False,
-            type=OpenApiTypes.STR,
-        ),
-        OpenApiParameter(
-            name="min_distance",
-            description="Minimum distance of the route in kilometers",
-            required=False,
-            type=OpenApiTypes.INT,
-        ),
-        OpenApiParameter(
-            name="max_distance",
-            description="Maximum distance of the route in kilometers",
-            required=False,
-            type=OpenApiTypes.INT,
-        ),
-    ]
-)
+@route_schema
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
 
